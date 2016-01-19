@@ -73,7 +73,7 @@ def run():
     print("New Name:")
     name = input()
     if(isValidName(name)):
-		style = getStyle()
+        style = getStyle()
         appendToStyle(uid, name)
     if(needsUpdating == 1):
         print("Style updating... ")
