@@ -22,7 +22,7 @@ def login():
             ups[pos] = word
             pos = pos + 1
     print("Logging in...")
-    r.login(ups[0], ups[1])
+    r.login(ups[0], ups[1], disable_warning=True)
     print("Logged in.")
 
 #return the SUBREDDIT's style
@@ -44,40 +44,37 @@ def isValidName(name):
     if(len(name)>30):
         return False
     for i in range(0, len(name)):
-    #for each character in name
         if (not contains(string.ascii_letters, name[i])):
-        #if it is not one of letter
             if (not contains(string.digits, name[i])):
-            #if it is not one of number
                 if(not name[i] == " "):
-                #if not space
                     return False
-                    #return false
-    #return true
     return True
 
 #add a new name to the style
-def appendToStyle(userid, username):
+def appendToStyle(realid, newname):
     global style
     global needsUpdating
-    print("Prepping style append for: "+userid+" to "+username)
-    style = style + '\n    .id-t2_' + userid + ':before { content: "' + username + '"; }\n'
-    style = style + '    .id-t2_' + userid + ':link {color: rgba(0,0,0,0); font-size: 0px; }\n'
+    print("Prepping style append for: "+realid+" to "+newname)
+    style = style + '\n    .id-' + realid + ':before { content: "' + newname + '"; }\n'
+    style = style + '    .id-' + realid + ':link {color: rgba(0,0,0,0); font-size: 0px; }\n'
     needsUpdating = 1
     
 #run the bot
 def run():
     global style
-    print("UID, without preceding id-t2_ tag:")
+    print("Real username:")
     uid = input()
+    user = r.get_redditor(uid)
+    realid = user.fullname
     print("New Name:")
     name = input()
     if(isValidName(name)):
         style = getStyle()
-        appendToStyle(uid, name)
+        appendToStyle(realid, name)
     if(needsUpdating == 1):
         print("Style updating... ")
         r.set_stylesheet(SUBREDDIT, style)        
         
 login()
 run()
+print("Exiting...")
