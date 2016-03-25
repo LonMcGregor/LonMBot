@@ -7,9 +7,10 @@ import string
 #statics
 UPS_LOC = 'up'
 SUBREDDIT = 'MonarchyOfEquestria'
+ACCENTED = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöùúûüýÿŒœŠšŸŽž'
 
 #globals
-r = praw.Reddit(user_agent = "praw:lonmcgregor.cssmanager:v1.1;(by /u/LonMcGregor)")
+r = praw.Reddit(user_agent = "praw:lonmcgregor.cssmanager:v1.2;(by /u/LonMcGregor)")
 style = ""
 
 #log me in function
@@ -46,8 +47,9 @@ def isValidName(name):
     for i in range(0, len(name)):
         if (not contains(string.ascii_letters, name[i])):
             if (not contains(string.digits, name[i])):
-                if(not name[i] == " "):
-                    return False
+                if (not contains(ACCENTED, name[i])):
+                    if(not name[i] == " "):
+                        return False
     return True
 
 #add a new name to the style
@@ -57,11 +59,13 @@ def appendToStyle(realid, newname):
     print("Prepping style append for: "+realid+" to "+newname)
     style = style + '\n    .id-' + realid + ':before { content: "' + newname + '"; }\n'
     style = style + '    .id-' + realid + ':link {color: rgba(0,0,0,0); font-size: 0px; }\n'
-    needsUpdating = 1
+    needsUpdating = True
     
 #run the bot
 def run():
     global style
+    global needsUpdating
+    needsUpdating = False
     print("Real username:")
     uid = input()
     user = r.get_redditor(uid)
@@ -71,9 +75,11 @@ def run():
     if(isValidName(name)):
         style = getStyle()
         appendToStyle(realid, name)
-    if(needsUpdating == 1):
+    if(needsUpdating):
         print("Style updating... ")
-        r.set_stylesheet(SUBREDDIT, style)        
+        r.set_stylesheet(SUBREDDIT, style)
+    else:
+        print("Invalid New Name")
         
 login()
 run()
